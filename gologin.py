@@ -9,7 +9,7 @@ class GoLogin:
         })
         self.profile_id = None
 
-    def __get_fingerprints(self, platform: str):
+    def _get_fingerprints(self, platform: str):
         r = self.client.get(
             "https://api.gologin.com/browser/fingerprint/",
             params={
@@ -24,6 +24,12 @@ class GoLogin:
             "name": name,
             "os": platform,
             "browserType": browser_type,
+            "navigator": {
+                "doNotTrack": True
+            },
+            "storage": {
+                "indexedDb": True
+            },
             "proxy": {
                 "mode": "none",
             },
@@ -33,7 +39,7 @@ class GoLogin:
             "canvas": {
                 "mode": "noise"
             },
-            "googleServicesEnabled": True
+            "googleServicesEnabled": True,
         }
         if proxy:
             body.update({
@@ -45,7 +51,7 @@ class GoLogin:
                     "password": proxy.split("@")[0].split(":")[1],
                 }
             })
-        fingerprints = self.__get_fingerprints(platform)
+        fingerprints = self._get_fingerprints(platform)
         body.update({
             "navigator": fingerprints["navigator"],
             "fonts": {
