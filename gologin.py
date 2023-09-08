@@ -1,14 +1,11 @@
 import httpx
-import time
 
 
 class GoLogin:
-    def __init__(self, token):
-        self.client = httpx.Client(
-            http2=True
-        )
+    def __init__(self, api_key: str):
+        self.client = httpx.Client()
         self.client.headers.update({
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {api_key}",
         })
         self.profile_id = None
 
@@ -69,23 +66,23 @@ class GoLogin:
         return self.profile_id
     
     def delete_profile(self, profile_id: str = None):
-        if not profile_id:
-            profile_id = self.profile_id
-        r = self.client.delete(f"https://api.gologin.com/browser/{profile_id}")
+        if profile_id:
+            self.profile_id = profile_id
+        r = self.client.delete(f"https://api.gologin.com/browser/{self.profile_id}")
         if r.status_code != 204:
             raise Exception()
 
     def start_profile(self, profile_id: str = None):
-        if not profile_id:
-            profile_id = self.profile_id
-        r = self.client.post("http://localhost:36912/browser/start-profile", json={"profileId": profile_id, "sync": True})
+        if profile_id:
+            self.profile_id = profile_id
+        r = self.client.post("http://localhost:36912/browser/start-profile", json={"profileId": self.profile_id, "sync": True})
         if r.status_code != 200:
             raise Exception()
         return r.json()["wsUrl"]
 
     def stop_profile(self, profile_id: str = None):
-        if not profile_id:
-            profile_id = self.profile_id
-        r = self.client.post("http://localhost:36912/browser/stop-profile", json={"profileId": profile_id})
+        if profile_id:
+            self.profile_id = profile_id
+        r = self.client.post("http://localhost:36912/browser/stop-profile", json={"profileId": self.profile_id})
         if r.status_code != 204:
             raise Exception()
